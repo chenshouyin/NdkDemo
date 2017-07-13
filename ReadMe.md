@@ -1,4 +1,14 @@
-﻿
+﻿![Paste_Image.png](http://upload-images.jianshu.io/upload_images/2704327-7872543ae8052f51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+
+[1.环境搭建](http://blog.csdn.net/e_inch_photo/article/details/74923317)
+[2.添加Log打印到logcat](http://blog.csdn.net/e_inch_photo/article/details/74926529)
+[3.Android NDK开发相关知识集合](http://www.jianshu.com/p/e7a765691067)
+[4.JNI 数据类型与 Java 数据类型的映射关系](http://www.jianshu.com/p/04786ef923f4)
+[5.C中处理Java中传递的字符串-字符串相加](http://www.jianshu.com/p/de2a9141b1e6)
+[6.JNI 访问基本类型数组--返回数组之和,返回数组给java](//http://www.jianshu.com/p/f2d3f71a1c99)
+[6.NI 访问对象数组](//http://www.jianshu.com/p/f2d3f71a1c99)
+
 [我的GitHub](https://github.com/chenshouyin?tab=repositories)
 [我的CSDN](http://blog.csdn.net/e_inch_photo)
 [我的简书](http://www.jianshu.com/u/303ec9abdc08)
