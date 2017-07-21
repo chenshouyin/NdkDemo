@@ -31,6 +31,54 @@ JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_TestDataTypeJ2C
 JNIEXPORT jintArray JNICALL Java_com_example_testndkeclipse_JniClient_sumArray
   (JNIEnv *, jclass, jintArray);
 
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    getArrayObjectFromC
+ * Signature: (I)[[I
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_example_testndkeclipse_JniClient_getArrayObjectFromC
+  (JNIEnv *, jclass, jint);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callJavaStaticMethod
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaStaticMethod
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callJavaInstaceMethod
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaInstaceMethod
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessInstanceField
+ * Signature: (Lcom/example/testndkeclipse/ClassField;)V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessInstanceField
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessStaticField
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessStaticField
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callSuperInstanceMethod
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callSuperInstanceMethod
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif
