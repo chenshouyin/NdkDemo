@@ -162,36 +162,167 @@ JNIEXPORT jintArray JNICALL Java_com_example_testndkeclipse_JniClient_sumArray(
 //	//4. 拷贝Java数组中的所有元素到缓冲区中
 //	(*env)->GetIntArrayRegion(env, mjintArray, 0, cLen, cPArray); //得到数组方式1  把数据放在缓冲区
 
-
 	// 可能数组中的元素在内存中是不连续的，JVM可能会复制所有原始数据到缓冲区，然后返回这个缓冲区的指针
-	jint* cPArray  = (*env)->GetIntArrayElements(env,mjintArray,NULL);
+	jint* cPArray = (*env)->GetIntArrayElements(env, mjintArray, NULL);
 	if (cPArray == NULL) {
-	        return 0;   // JVM复制原始数据到缓冲区失败
+		return 0; // JVM复制原始数据到缓冲区失败
 	}
 
 	jint i;
-	for (i = 0; i < cLen; i++) {//求数组和
+	for (i = 0; i < cLen; i++) { //求数组和
 		cSum = cSum + cPArray[i];
 	}
 	LOGI("jSum==>%d\n", cSum);
 
 	//给java层返回数组方式1
-	jint cInts[cLen];//定义一个数组
+	jint cInts[cLen]; //定义一个数组
 	for (i = 0; i < cLen; i++) {
 		cInts[i] = cPArray[i];
 	}
 	//length =  sizeof(array) / sizeof(array[0]);  c/c++中求数组长度
-	 jintArray result;
-	 result = (*env)->NewIntArray(env, cLen);
-	 if (result == NULL) {
-	     return NULL; /* out of memory error thrown */
-	 }
-	 //move from the temp structure to the java structure  将native数组转换为java层数组
-	(*env)->SetIntArrayRegion(env,result,0,sizeof(cInts) / sizeof(cInts[0]),cInts);
+	jintArray result;
+	result = (*env)->NewIntArray(env, cLen);
+	if (result == NULL) {
+		return NULL; /* out of memory error thrown */
+	}
+	//move from the temp structure to the java structure  将native数组转换为java层数组
+	(*env)->SetIntArrayRegion(env, result, 0, sizeof(cInts) / sizeof(cInts[0]),
+			cInts);
 
-	 (*env)->ReleaseIntArrayElements(env,mjintArray, cPArray, 0); // 释放可能复制的缓冲区
+	(*env)->ReleaseIntArrayElements(env, mjintArray, cPArray, 0); // 释放可能复制的缓冲区
 	return result;
 }
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    getArrayObjectFromC
+ * Signature: (I)[[I
+ *
+ * C返回一个二维数组对象给java
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_example_testndkeclipse_JniClient_getArrayObjectFromC(
+		JNIEnv * env, jclass mJclass, jint mJlen) {
+	jobjectArray jObjectArrayResult; //jni中二维数组为对象
+	jclass jClassArray;
+	//获得一个int型二维数组的一个引用
+	jClassArray = (*env)->FindClass(env, "[I");
+	if (jClassArray == NULL) { //out of memery
+		return NULL;
+	}
+	// 2.创建一个数组对象（里面每个元素用clsIntArray表示）  参数 JNIEnv*, jsize, jclass, jobject
+	jObjectArrayResult = (*env)->NewObjectArray(env, mJlen, jClassArray, NULL);
+	if (jObjectArrayResult == NULL) {
+		return NULL;
+	}
+	//为数组元素赋值
+	jint i;
+	for (i = 0; i < mJlen; i++) {
+		jintArray mJintArray; //创建一个一维数组
+		//(*env)->GetIntArrayRegion(env,mJintArray,0,mJlen,NULL);//JNIEnv*, jintArray,jsize, jsize, jint*
+		mJintArray = (*env)->NewIntArray(env, mJlen);
+		if (mJintArray == NULL) {
+			return NULL;
+		}
+		jint mBuff[mJlen - 1]; //创建一个一维缓冲数组
+		jint j;
+		for (j = 0; j < mJlen; j++) {
+			mBuff[j] = i + j;
+		}
+		//数组转换
+		(*env)->SetIntArrayRegion(env, mJintArray, 0, mJlen, mBuff); //JNIEnv*, jintArray,jsize, jsize, const jint*
+		//设置数组对象
+		(*env)->SetObjectArrayElement(env, jObjectArrayResult, i, mJintArray); //JNIEnv*, jobjectArray, jsize, jobject
+		(*env)->DeleteLocalRef(env, mJintArray); //JNIEnv*, jobject
+
+	}
+	return jObjectArrayResult;
+}
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callJavaStaticMethod
+ * Signature: ()V
+ *
+ * 此中调用java层的静态方法
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaStaticMethod(
+		JNIEnv * env, jclass cla) {
+	jclass mJclass;
+	jstring mJstring;
+	jmethodID mJStaticmethodID;
+	//1.从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象
+	int i = 0;
+	mJclass = (*env)->FindClass(env, "com/example/testndkeclipse/MyJavaClass"); //JNIEnv*, const char*
+	if (mJclass == NULL) {
+		//LOGI("callJavaStaticMethod==>>mJclass==NULL==>>%s", "");
+		return;
+	}
+	// 2、从clazz类中查找callStaticMethod方法
+	mJStaticmethodID = (*env)->GetStaticMethodID(env, mJclass,
+			"callStaticMethod", "(Ljava/lang/String;I)V"); //JNIEnv*, jclass, const char*, const char*
+	if (mJStaticmethodID == NULL) {
+		printf("=====>>>can not foud callStaticMethod");
+		return;
+	}
+	//3、调用clazz类的callStaticMethod静态方法
+	mJstring = (*env)->NewStringUTF(env, "==I am from C==");
+	(*env)->CallStaticVoidMethod(env, mJclass, mJStaticmethodID, mJstring, 200); //JNIEnv*, jclass, jmethodID, ...
+
+	// 删除局部引用
+	(*env)->DeleteLocalRef(env, mJstring);
+	(*env)->DeleteLocalRef(env, mJclass);
+
+}
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callJavaInstaceMethod
+ * Signature: ()V
+ *
+ * 此中调用java层的对象方法
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaInstaceMethod(
+		JNIEnv * env, jclass jclazz) {
+	jclass mJclass = NULL;
+	jmethodID jmethodID_Construct; //构造方法ID
+	jmethodID jmethodID_Method_Instance; //方法的ID
+	jobject jobjectMyClass; //类的实例
+	//1、从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象
+	mJclass = (*env)->FindClass(env, "com/example/testndkeclipse/MyJavaClass");
+	if (mJclass == NULL) {
+		printf("====FindClass  not found \n");
+		return;
+	}
+	// 2、获取类的默认构造方法ID
+	jmethodID_Construct = (*env)->GetMethodID(env, mJclass, "<init>", "()V");
+	if (jmethodID_Construct == NULL) {
+		printf("GetMethodID not found ==>>jmethodID_Construct");
+		return;
+	}
+	// 3、查找实例方法的ID
+	jmethodID_Method_Instance = (*env)->GetMethodID(env, mJclass,
+			"callInstanceMethod", "(Ljava/lang/String;I)V");
+	if (jmethodID_Method_Instance == NULL) {
+		return;
+	}
+	// 4、创建该类的实例  调用无参构造方法  如果其它构造方法,后面可传参数
+	jobjectMyClass = (*env)->NewObject(env, mJclass, jmethodID_Construct); //JNIEnv*, jclass, jmethodID, ...
+	if (jobjectMyClass == NULL) {
+		printf("在com.example.testndkeclipse.MyJavaClass 类中找不到callInstanceMethod方法");
+		return;
+	}
+	// 5、调用对象的实例方法
+	//jstring mJstring = (*env)->NewStringUTF(env,"==我来自Native,通过调用java对象方法传递==");
+	jstring mJstring = (*env)->NewStringUTF(env,"==I am from Native==");
+	(*env)->CallVoidMethod(env,jobjectMyClass,jmethodID_Method_Instance,mJstring,201);//JNIEnv*, jobject, jmethodID, ...
+
+	 // 删除局部引用
+	(*env)->DeleteLocalRef(env,mJstring);
+	(*env)->DeleteLocalRef(env,jobjectMyClass);
+	(*env)->DeleteLocalRef(env,jmethodID_Method_Instance);
+	(*env)->DeleteLocalRef(env,jmethodID_Construct);
+}
+
 #ifdef __cplusplus
 }
 #endif
