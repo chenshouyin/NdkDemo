@@ -308,21 +308,194 @@ JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaInstace
 	// 4、创建该类的实例  调用无参构造方法  如果其它构造方法,后面可传参数
 	jobjectMyClass = (*env)->NewObject(env, mJclass, jmethodID_Construct); //JNIEnv*, jclass, jmethodID, ...
 	if (jobjectMyClass == NULL) {
-		printf("在com.example.testndkeclipse.MyJavaClass 类中找不到callInstanceMethod方法");
+		printf(
+				"在com.example.testndkeclipse.MyJavaClass 类中找不到callInstanceMethod方法");
 		return;
 	}
 	// 5、调用对象的实例方法
-	//jstring mJstring = (*env)->NewStringUTF(env,"==我来自Native,通过调用java对象方法传递==");
 	jstring mJstring = (*env)->NewStringUTF(env,"==I am from Native==");
-	(*env)->CallVoidMethod(env,jobjectMyClass,jmethodID_Method_Instance,mJstring,201);//JNIEnv*, jobject, jmethodID, ...
+	//jstring mJstring = (*env)->NewStringUTF(env,"==我来自Native,通过调用java对象方法传递==");
+	(*env)->CallVoidMethod(env, jobjectMyClass, jmethodID_Method_Instance,
+			mJstring, 201); //JNIEnv*, jobject, jmethodID, ...
 
-	 // 删除局部引用
-	(*env)->DeleteLocalRef(env,mJstring);
-	(*env)->DeleteLocalRef(env,jobjectMyClass);
-	(*env)->DeleteLocalRef(env,jmethodID_Method_Instance);
-	(*env)->DeleteLocalRef(env,jmethodID_Construct);
+	// 删除局部引用
+	(*env)->DeleteLocalRef(env, mJstring);
+	(*env)->DeleteLocalRef(env, jobjectMyClass);
+	//(*env)->DeleteLocalRef(env, jmethodID_Method_Instance);
+	//(*env)->DeleteLocalRef(env, jmethodID_Construct);
 }
 
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessInstanceField
+ * Signature: (Lcom/example/testndkeclipse/ClassField;)V
+ *
+ * 访问java中的实例属性
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessInstanceField(
+		JNIEnv * env, jclass jcl, jobject obj) {
+	jclass clazz;
+	jfieldID fid;
+	jstring j_str;
+	jstring j_newStr;
+	const char *c_str = NULL;
+
+	// 1.获取AccessField类的Class引用
+	clazz = (*env)->GetObjectClass(env, obj);
+	if (clazz == NULL) {
+		return;
+	}
+	// 2. 获取AccessField类实例变量str的属性ID
+	fid = (*env)->GetFieldID(env, clazz, "str", "Ljava/lang/String;");
+	if (clazz == NULL) {
+		return;
+	}
+	// 3. 获取实例变量str的值
+	j_str = (*env)->GetObjectField(env, obj, fid); //JNIEnv*, jobject, jfieldID
+	if (j_str == NULL) {
+		return;
+	}
+	// 4. 将unicode编码的java字符串转换成C风格字符串
+	c_str = (*env)->GetStringUTFChars(env, j_str, NULL); //JNIEnv*, jstring, jboolean*
+	if (c_str == NULL) {
+		return;
+	}
+	printf("In C--->ClassField.str = %s\n", c_str);
+	(*env)->ReleaseStringUTFChars(env, j_str, c_str); //JNIEnv*, jstring, const char*
+	// 5. 修改实例变量str的值
+	j_newStr = (*env)->NewStringUTF(env, "This is C String");
+	if (j_newStr == NULL) {
+		return;
+	}
+	(*env)->SetObjectField(env, obj, fid, j_newStr); //JNIEnv*, jobject, jfieldID, jobject
+
+	// 6.删除局部引用
+	(*env)->DeleteLocalRef(env, clazz); //JNIEnv*, jobject
+	(*env)->DeleteLocalRef(env, j_str); //JNIEnv*, jobject
+	(*env)->DeleteLocalRef(env, j_newStr); //JNIEnv*, jobject
+	//(*env)->DeleteLocalRef(env,fid);//JNIEnv*, jobject  返回的非object,不能使用 DeleteLocalRef
+	//使用NewObject就会返回创建出来的实例的局部引用 可  DeleteLocalRef
+
+}
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessStaticField
+ * Signature: ()V
+ *
+ * 访问java的静态属性
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessStaticField(
+		JNIEnv * env, jclass jcl) {
+	jclass clazz;
+	jfieldID fid;
+	jint num;
+
+	//1.获取ClassField类的Class引用
+	clazz = (*env)->FindClass(env, "com/example/testndkeclipse/ClassField");
+	if (clazz == NULL) { // 错误处理
+		return;
+	}
+	//2.获取ClassField类静态变量num的属性ID
+	fid = (*env)->GetStaticFieldID(env, clazz, "num", "I");
+	if (fid == NULL) {
+		return;
+	}
+
+	// 3.获取静态变量num的值
+	num = (*env)->GetStaticIntField(env, clazz, fid);
+	printf("In C--->ClassField.num = %d\n", num);
+
+	// 4.修改静态变量num的值
+	(*env)->SetStaticIntField(env, clazz, fid, 80);
+
+	// 删除属部引用
+	(*env)->DeleteLocalRef(env, clazz);
+
+}
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callSuperInstanceMethod
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callSuperInstanceMethod(
+		JNIEnv *env, jclass cls) {
+	LOGI("Java_com_example_testndkeclipse_JniClient_callSuperInstanceMethod");//可写任意参数
+	LOGI("%d", 10);
+    printf("%d", 10);
+
+//	jclass cls_cat;
+//	jclass cls_animal;
+//	jmethodID mid_cat_init;
+//	jmethodID mid_run;
+//	jmethodID mid_getName;
+//	jstring c_str_name;
+//	jobject obj_cat;
+//	const char *name = NULL;
+//
+//	// 1、获取Cat类的class引用
+//	cls_cat = (*env)->FindClass(env, "com/example/testndkeclipse/Cat");
+//	if (cls_cat == NULL) {
+//		return;
+//	}
+//	// 2、获取Cat的构造方法ID(构造方法的名统一为：<init>)
+//	mid_cat_init = (*env)->GetMethodID(env, cls_cat, "<init>",
+//			"(Ljava/lang/String;)V");
+//	if (mid_cat_init == NULL) {
+//		return; // 没有找到只有一个参数为String的构造方法
+//	}
+//
+//	// 3、创建一个String对象，作为构造方法的参数
+//	c_str_name = (*env)->NewStringUTF(env, "Tom Cat");
+//	if (c_str_name == NULL) {
+//		return; // 创建字符串失败（内存不够）
+//	}
+//
+//	//  4、创建Cat对象的实例(调用对象的构造方法并初始化对象)
+//	obj_cat = (*env)->NewObject(env, cls_cat, mid_cat_init, c_str_name);
+//	if (obj_cat == NULL) {
+//		return;
+//	}
+//
+//	//-------------- 5、调用Cat父类Animal的run和getName方法 --------------
+//	cls_animal = (*env)->FindClass(env, "com/example/testndkeclipse/Animal");
+//	if (cls_animal == NULL) {
+//		return;
+//	}
+//
+//	// 例1： 调用父类的run方法
+//	mid_run = (*env)->GetMethodID(env, cls_animal, "run", "()V"); // 获取父类Animal中run方法的id
+//	if (mid_run == NULL) {
+//		return;
+//	}
+//
+//	// 注意：obj_cat是Cat的实例，cls_animal是Animal的Class引用，mid_run是Animal类中的方法ID
+//	(*env)->CallNonvirtualVoidMethod(env, obj_cat, cls_animal, mid_run);
+//
+//	// 例2：调用父类的getName方法
+//	// 获取父类Animal中getName方法的id
+//	mid_getName = (*env)->GetMethodID(env, cls_animal, "getName",
+//			"()Ljava/lang/String;");
+//	if (mid_getName == NULL) {
+//		return;
+//	}
+//
+//	c_str_name = (*env)->CallNonvirtualObjectMethod(env, obj_cat, cls_animal,
+//			mid_getName);
+//	name = (*env)->GetStringUTFChars(env, c_str_name, NULL);
+//	printf("In C: Animal Name is %s\n", name);
+//	LOGI("In C: Animal Name is");//可写任意参数
+//	// 释放从java层获取到的字符串所分配的内存
+//	(*env)->ReleaseStringUTFChars(env, c_str_name, name);
+//
+//	quit:
+//	// 删除局部引用（jobject或jobject的子类才属于引用变量），允许VM释放被局部变量所引用的资源
+//	(*env)->DeleteLocalRef(env, cls_cat);
+//	(*env)->DeleteLocalRef(env, cls_animal);
+//	(*env)->DeleteLocalRef(env, c_str_name);
+//	(*env)->DeleteLocalRef(env, obj_cat);
+}
 #ifdef __cplusplus
 }
 #endif

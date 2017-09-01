@@ -23,5 +23,11 @@ public class JniClient {
 	public static native void callJavaStaticMethod();   
 	//6.java中的对象方法供C调用 也称c给java的回调
     public static native void callJavaInstaceMethod();  
+    //7.C/C++ 访问 Java实例变量
+    public native static void accessInstanceField(ClassField obj);  
+    //8.C/C++ 访问 Java静态变量
+    public native static void accessStaticField();  
+    //JNI 调用构造方法和父类实例方法
+    public native static void callSuperInstanceMethod(); 
 
 }

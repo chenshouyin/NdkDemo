@@ -55,6 +55,30 @@ JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaStaticM
 JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callJavaInstaceMethod
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessInstanceField
+ * Signature: (Lcom/example/testndkeclipse/ClassField;)V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessInstanceField
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    accessStaticField
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_accessStaticField
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_example_testndkeclipse_JniClient
+ * Method:    callSuperInstanceMethod
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_example_testndkeclipse_JniClient_callSuperInstanceMethod
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif
