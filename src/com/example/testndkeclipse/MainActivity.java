@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	private Button bt1, bt2, bt3,bt4, bt5, bt6,bt7,bt8,bt9,bt10;
+	private Button bt1, bt2, bt3,bt4, bt5, bt6,bt7,bt8,bt9,bt10,bt11,bt12,bt13;
 	static {
 		// 加载so库
 		System.loadLibrary("TestNdk");// lib和.so为前缀后缀,不用加上
@@ -51,6 +51,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		bt9.setOnClickListener(this);
 		bt10 = (Button) this.findViewById(R.id.bt10);
 		bt10.setOnClickListener(this);
+		bt11 = (Button) this.findViewById(R.id.bt11);
+		bt11.setOnClickListener(this);
+		bt12 = (Button) this.findViewById(R.id.bt12);
+		bt12.setOnClickListener(this);
+	
 	}
 
 	@Override
@@ -114,18 +119,51 @@ public class MainActivity extends Activity implements OnClickListener {
 				Toast.makeText(MainActivity.this, "native中返回对象数组"+ java2ArrayResult[0][0]+"==="+java2ArrayResult[1][1],Toast.LENGTH_SHORT).show();
 			}
 		}else if (v == bt8) {
-			//jni调用java的静态方法 回传值
+			//jni调用java的静态方法 回传值 http://www.jianshu.com/p/747e0d60d5a7
 			JniClient.callJavaStaticMethod();
 			Toast.makeText(MainActivity.this,MyJavaClass.getResultFromC(),Toast.LENGTH_SHORT).show();
 
 		}else if (v == bt9) {
-			//jni调用java的对象方法 回传值
+			//jni调用java的对象方法 回传值 http://www.jianshu.com/p/747e0d60d5a7
 			JniClient.callJavaInstaceMethod();
 			Toast.makeText(MainActivity.this,MyJavaClass.getResultFromC2(),Toast.LENGTH_SHORT).show();
 
 		}else if (v == bt10) {
-			
+			//C/C++ 访问 Jav实例变量 http://www.jianshu.com/p/7d588be423b3
+			 ClassField obj = new ClassField();  
+		        obj.setNum(10);  
+		        obj.setStr("Hello");  
+
+		        // 本地代码访问和修改ClassField为中的静态属性num  
+		        //JniClient.accessStaticField();  
+		        JniClient.accessInstanceField(obj);  
+		        // 输出本地代码修改过后的值  
+		        System.out.println("In Java--->ClassField.num = " + obj.getNum());  
+		        System.out.println("In Java--->ClassField.str = " + obj.getStr()); 
+				Toast.makeText(MainActivity.this, "C/C++ 访问 Java实例变量 修改str "+ obj.getNum()+"==="+obj.getStr(),Toast.LENGTH_SHORT).show();
+
+		}else if (v == bt11) {
+			//C/C++ 访问 Jav静态变量 http://www.jianshu.com/p/7d588be423b3
+			 ClassField obj = new ClassField();  
+		        obj.setNum(10);  
+		        obj.setStr("Hello");  
+		        // 本地代码访问和修改ClassField为中的静态属性num  
+		        JniClient.accessStaticField();  		        
+		        //JniClient.accessInstanceField(obj);  
+		        // 输出本地代码修改过后的值  
+		        System.out.println("In Java--->ClassField.num = " + obj.getNum());  
+		        System.out.println("In Java--->ClassField.str = " + obj.getStr());  
+				Toast.makeText(MainActivity.this, "C/C++ 访问 Java静态变量 修改str "+ obj.getNum()+"==="+obj.getStr(),Toast.LENGTH_SHORT).show();
+
+		}else if (v == bt12) {
+			//JNI 调用构造方法和父类实例方法 http://www.jianshu.com/p/377d115e3c82
+			Toast.makeText(MainActivity.this, "JNI 调用构造方法和父类实例方法 ",Toast.LENGTH_SHORT).show();
+
+			JniClient.callSuperInstanceMethod();
 		}
+		
+		
+		
 	}
 
 }

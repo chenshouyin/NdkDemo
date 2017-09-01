@@ -67,12 +67,24 @@
             android:layout_height="wrap_content"
             android:text="C/C++ 访问 Java 实例方法" />
 
-        <Button
-            android:visibility="gone"
-            android:id="@+id/bt10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10" />
+          <Button
+                android:id="@+id/bt10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="C/C++ 访问 Java 实例变量" />
+
+            <Button
+                android:id="@+id/bt11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="C/C++ 访问 Java 静态变量" />
+
+            <Button
+                android:id="@+id/bt12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JNI 调用构造方法和父类实例方法" />
+        
     </LinearLayout>
 
 </RelativeLayout>
